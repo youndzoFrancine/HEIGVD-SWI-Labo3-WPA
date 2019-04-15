@@ -21,6 +21,20 @@ from binascii import a2b_hex, b2a_hex
 from pbkdf2_math import pbkdf2_hex
 from numpy import array_split
 from numpy import array
+import hmac, hashlib
+
+def customPRF512(key,A,B):
+    """
+    This function calculates the key expansion from the 256 bit PMK to the 512 bit PTK
+    """
+    blen = 64
+    i    = 0
+    R    = ''
+    while i<=((blen*8+159)/160):
+        hmacsha1 = hmac.new(key,A+chr(0x00)+B+chr(i),hashlib.sha1)
+        i+=1
+        R = R+hmacsha1.digest()
+    return R[:blen]
 
 # Read capture file -- it contains beacon, authentication, associacion, handshake and data
 wpa=rdpcap("wpa_handshake.cap") 
@@ -32,9 +46,12 @@ ssid        = "SWI"
 APmac       = a2b_hex("cebcc8fdcab7")
 Clientmac   = a2b_hex("0013efd015bd")
 
+# Authenticator and Supplicant Nonces
 ANonce      = a2b_hex("90773b9a9661fee1f406e8989c912b45b029c652224e8b561417672ca7e0fd91")
 SNonce      = a2b_hex("7b3826876d14ff301aee7c1072b5e9091e21169841bce9ae8a3f24628f264577")
 
+# This is the MIC contained in the 4th frame of the 4-way handshake
+# When attacking WPA, we would compare it to our own MIC calculated using passphrases from a dictionary
 mic_to_test = "36eef66540fa801ceee2fea9b7929b40"
 
 B           = min(APmac,Clientmac)+max(APmac,Clientmac)+min(ANonce,SNonce)+max(ANonce,SNonce) #used in pseudo-random function
@@ -49,20 +66,6 @@ print "AP Mac: ",b2a_hex(APmac),"\n"
 print "CLient Mac: ",b2a_hex(Clientmac),"\n"
 print "AP Nonce: ",b2a_hex(ANonce),"\n"
 print "Client Nonce: ",b2a_hex(SNonce),"\n"
-
-
-def customPRF512(key,A,B):
-    """
-    This function calculates the key expansion from the 256 bit PMK to the 512 bit PTK
-    """
-    blen = 64
-    i    = 0
-    R    = ''
-    while i<=((blen*8+159)/160):
-        hmacsha1 = hmac.new(key,A+chr(0x00)+B+chr(i),hashlib.sha1)
-        i+=1
-        R = R+hmacsha1.digest()
-    return R[:blen]
 
 #calculate 4096 rounds to obtain the 256 bit (32 oct) PMK
 pmk = pbkdf2_hex(passPhrase, ssid, 4096, 32)
