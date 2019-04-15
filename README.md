@@ -40,7 +40,7 @@ Dans cette première partie, vous allez récupérer le script Python [wpa_key_de
 - __Modifier le script__ pour qu’il récupère automatiquement, à partir de la capture, les valeurs qui se trouvent actuellement codées en dur (```ssid```, ```APmac```, ```Clientmac```, nonces…) 
 
 
-### Scaircrack (aircrack basé sur Scapy)
+### 2. Scaircrack (aircrack basé sur Scapy)
 
 Aircrack utilise le quatrième message du 4-way handshake pour tester les passphrases contenues dans un dictionnaire. Ce message ne contient pas de données chiffrées mais il est authentifié avec un MIC qui peut être exploité comme « oracle » pour tester des clés différentes obtenues des passphrases du dictionnaire.
 
