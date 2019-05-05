@@ -42,7 +42,7 @@ wpa=rdpcap("wpa_handshake.cap")
 # Important parameters for key derivation - most of them can be obtained from the pcap file
 isPassPhrase  = False
 #passphrase recovery from the local file
-file=open("PhrasesList.txt")
+file=open("wordList.txt")
 file_content=file.read()
 passPhrase=file_content.split()
 
